@@ -14,8 +14,12 @@ export function App() {
   const { data: transactionsByEmployee, ...transactionsByEmployeeUtils } = useTransactionsByEmployee()
   const [isLoading, setIsLoading] = useState(false)
 
+  // Memoizing next page possibility by checking if data/next page is not null
   const transactions = useMemo(
-    () => paginatedTransactions?.data ?? transactionsByEmployee ?? null,
+    () =>  ({
+      pageData: paginatedTransactions?.data ?? transactionsByEmployee ?? null,
+      isNextPagePossible: paginatedTransactions?.data ? paginatedTransactions.nextPage : null
+    }),
     [paginatedTransactions, transactionsByEmployee]
   )
 
@@ -78,9 +82,10 @@ export function App() {
         <div className="KaizntreeBreak--l" />
 
         <div className="KaizntreeGrid">
-          <Transactions transactions={transactions} />
+          <Transactions transactions={transactions.pageData} />
 
-          {transactions !== null && (
+          {/* Only have the view more button if there are transactions in the next page */}
+          {(transactions !== null && transactions.isNextPagePossible) && (
             <button
               className="KaizntreeButton"
               disabled={paginatedTransactionsUtils.loading}
