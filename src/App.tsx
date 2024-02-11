@@ -65,6 +65,12 @@ export function App() {
               return
             }
 
+            // Edge case: where the newValue body exists but the id maybe empty
+            if(newValue.id === "") {
+              await loadAllTransactions()
+              return
+            }
+
             await loadTransactionsByEmployee(newValue.id)
           }}
         />
