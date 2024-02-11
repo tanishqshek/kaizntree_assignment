@@ -22,7 +22,22 @@ export function usePaginatedTransactions(): PaginatedTransactionsResult {
         return response
       }
 
-      return { data: response.data, nextPage: response.nextPage }
+      // Bug fix 4: concatenating the older transactions with the new ones instead of replacing them
+      let newData : any[] = [];
+
+      if (paginatedTransactions && paginatedTransactions.data) {
+        newData = newData.concat(paginatedTransactions.data);
+      }
+    
+      if (response && response.data) {
+          newData = newData.concat(response.data);
+      }
+      
+      return {
+          data: newData,
+          nextPage: response ? response.nextPage : null
+      };
+
     })
   }, [fetchWithCache, paginatedTransactions])
 
