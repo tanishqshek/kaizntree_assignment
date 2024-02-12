@@ -13,6 +13,7 @@ export function App() {
   const { data: paginatedTransactions, ...paginatedTransactionsUtils } = usePaginatedTransactions()
   const { data: transactionsByEmployee, ...transactionsByEmployeeUtils } = useTransactionsByEmployee()
   const [isLoading, setIsLoading] = useState(false)
+  const [isEmployeeListLoading, setIsEmployeeListLoading] = useState(false)
 
   // Memoizing next page possibility by checking if data/next page is not null
   const transactions = useMemo(
@@ -23,6 +24,15 @@ export function App() {
     [paginatedTransactions, transactionsByEmployee]
   )
 
+  // Separating employee list loading from paginated transactions
+  const loadEmployeesList = useCallback(async () => {
+    setIsEmployeeListLoading(true)
+
+    await employeeUtils.fetchAll()
+
+    setIsEmployeeListLoading(false)
+  }, [employeeUtils])
+
   const loadAllTransactions = useCallback(async () => {
     setIsLoading(true)
     transactionsByEmployeeUtils.invalidateData()
@@ -31,7 +41,7 @@ export function App() {
     await paginatedTransactionsUtils.fetchAll()
 
     setIsLoading(false)
-  }, [employeeUtils, paginatedTransactionsUtils, transactionsByEmployeeUtils])
+  }, [paginatedTransactionsUtils, transactionsByEmployeeUtils])
 
   const loadTransactionsByEmployee = useCallback(
     async (employeeId: string) => {
@@ -43,6 +53,7 @@ export function App() {
 
   useEffect(() => {
     if (employees === null && !employeeUtils.loading) {
+      loadEmployeesList()
       loadAllTransactions()
     }
   }, [employeeUtils.loading, employees, loadAllTransactions])
@@ -55,7 +66,7 @@ export function App() {
         <hr className="KaizntreeBreak--l" />
 
         <InputSelect<Employee>
-          isLoading={isLoading}
+          isLoading={isEmployeeListLoading}
           defaultValue={EMPTY_EMPLOYEE}
           items={employees === null ? [] : [EMPTY_EMPLOYEE, ...employees]}
           label="Filter by employee"
