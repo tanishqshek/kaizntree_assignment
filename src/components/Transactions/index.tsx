@@ -5,7 +5,7 @@ import { TransactionPane } from "./TransactionPane"
 import { SetTransactionApprovalFunction, TransactionsComponent } from "./types"
 
 export const Transactions: TransactionsComponent = ({ transactions }) => {
-  const { fetchWithoutCache, loading } = useCustomFetch()
+  const { clearCacheByEndpoint, fetchWithoutCache, loading } = useCustomFetch()
 
   const setTransactionApproval = useCallback<SetTransactionApprovalFunction>(
     async ({ transactionId, newValue }) => {
@@ -13,6 +13,9 @@ export const Transactions: TransactionsComponent = ({ transactions }) => {
         transactionId,
         value: newValue,
       })
+
+      // Adding a clear by cache endpoint to refresh the caches of transactions by employee and paginated transactions
+      clearCacheByEndpoint(["transactionsByEmployee", "paginatedTransactions"]);
     },
     [fetchWithoutCache]
   )
